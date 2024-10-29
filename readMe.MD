@@ -74,7 +74,7 @@ This step builds a Docker image from the checked-out code and pushes it to ECR.
 ```yaml
 - name: Build, tag, and push image to Amazon ECR
   run: |
-    `docker build` -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 ```
 
@@ -85,7 +85,7 @@ To avoid ECR image build-up, the workflow deletes the oldest image in your ECR r
 ```yaml
 - name: Delete Previous Image from ECR
   run: |
-    IMAGE_DIGEST=$(`aws ecr describe-images` \
+    IMAGE_DIGEST=$(aws ecr describe-images \
       --repository-name $ECR_REPOSITORY \
       --registry-id $AWS_ACCOUNT_ID \
       --query 'sort_by(imageDetails,&imagePushedAt)[0].imageDigest' \
@@ -131,7 +131,7 @@ Connects to the Lightsail instance via SSH, stops and removes the existing Docke
     docker pull ${{ env.AWS_ACC_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{env.ECR_REPOSITORY}}:latest
     docker run -d -p 5000:5000 --name $CONTAINER_NAME ${{ env.AWS_ACC_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{env.ECR_REPOSITORY}}:latest
     aws s3 cp s3://cartle-backend/.env /home/ubuntu/.env
-    docker cp /home/ubuntu/.env "$CONTAINER_NAME:`/app/.env`"
+    docker cp /home/ubuntu/.env "$CONTAINER_NAME:/app/.env"
     docker restart $CONTAINER_NAME
     EOF
 ```
